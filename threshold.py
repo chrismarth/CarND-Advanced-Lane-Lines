@@ -19,6 +19,22 @@ def hls_threshold_s_img(image, lower=90, upper=255):
     return binary
 
 
+def hls_threshold_l_img(image, lower=90, upper=255):
+    """
+    Given an RGB image, this function converts the images to the HLS color space and then applies the lower and upper 
+    bounds to the L channel to return a binary image
+    :param image: RGB image to threshold 
+    :param lower: The lower bound of the L channel
+    :param upper: The upper bound of the L channel
+    :return: 
+    """
+    hls = cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
+    L = hls[:,:,1]
+    binary = np.zeros_like(L)
+    binary[(L > lower) & (L <= upper)] = 1
+    return binary
+
+
 def sobel_threshold_x_img(img, lower=20, upper=100):
     """
     Given an RGB image, this function converts the images to the Gray color space and then applies the lower and upper 
@@ -38,6 +54,27 @@ def sobel_threshold_x_img(img, lower=20, upper=100):
     sxbinary = np.zeros_like(scaled_sobel)
     sxbinary[(scaled_sobel >= lower) & (scaled_sobel <= upper)] = 1
     return sxbinary
+
+
+def sobel_threshold_y_img(img, lower=20, upper=100):
+    """
+    Given an RGB image, this function converts the images to the Gray color space and then applies the lower and upper 
+    bounds to the Sobel Operator in the Y direction to return a binary image 
+    :param image: RGB image to threshold 
+    :param lower: The lower bound of the Sobel X gradient
+    :param upper: The upper bound of the Sobel X gradient
+    :return: 
+    """
+    # TODO: Explore other color spaces besides Gray here
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1)  # Take the derivative in x
+    abs_sobely = np.absolute(sobely)  # Absolute x derivative to accentuate lines away from horizontal
+    scaled_sobel = np.uint8(255 * abs_sobely / np.max(abs_sobely))
+
+    # Threshold x gradient
+    sybinary = np.zeros_like(scaled_sobel)
+    sybinary[(scaled_sobel >= lower) & (scaled_sobel <= upper)] = 1
+    return sybinary
 
 
 def combine_binary(img1, img2):

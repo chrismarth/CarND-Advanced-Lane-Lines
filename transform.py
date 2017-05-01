@@ -11,8 +11,8 @@ def get_perspective_transform():
     :return: M and Minv. The perspective transform matrix and the inverse matrix, respectively
     """
     # The src and dst points were derived experimentally from the supplied test images
-    src = np.float32([[265, 680], [1055, 690], [600, 445], [675, 445]])
-    dst = np.float32([[265, 680], [1055, 690], [265, 0], [1055, 0]])
+    src = np.float32([[265, 690], [1055, 690], [595, 450], [685, 450]])
+    dst = np.float32([[265, 720], [1055, 720], [265, 0], [1055, 0]])
     M = cv2.getPerspectiveTransform(src, dst)
     Minv = cv2.getPerspectiveTransform(dst, src)
     return M, Minv

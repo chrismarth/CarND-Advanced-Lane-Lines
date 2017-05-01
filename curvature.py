@@ -16,5 +16,17 @@ def radius_of_curvature(left_fit, right_fit):
     return left_curverad, right_curverad
 
 
-# font = cv2.FONT_HERSHEY_SIMPLEX
-# cv2.putText(img,'OpenCV',(10,500), font, 4,(255,255,255),2,cv2.LINE_AA)
+def offset(left_fit, right_fit):
+    """
+    Given the polynomial fits for the left and right lane lines, returns the vehicle offset from the center of the image
+    :param left_fit: Polynomial fit for the left lane line 
+    :param right_fit: Polynomial fit for the right lane line
+    :return: 
+    """
+    y_eval = 719
+    width = 1280
+    left_fitx = left_fit[0] * y_eval ** 2 + left_fit[1] * y_eval + left_fit[2]
+    right_fitx = right_fit[0] * y_eval ** 2 + right_fit[1] * y_eval + right_fit[2]
+    center = int((left_fitx + right_fitx)/2)
+    offset = abs(int(width/2) - center)
+    return offset*xm_per_pix

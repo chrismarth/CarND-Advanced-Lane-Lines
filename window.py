@@ -3,7 +3,7 @@ import cv2
 import curvature
 
 
-def fit_polynomial(image, window_width=50, window_height=80, margin=100, minpix=50):
+def fit_polynomial_blind(image, window_width=50, window_height=80, margin=100, minpix=50):
     """
     TODO: Combine this with find_window_centroids
     
@@ -61,6 +61,30 @@ def fit_polynomial(image, window_width=50, window_height=80, margin=100, minpix=
     return left_fit_px, right_fit_px, left_fit_m, right_fit_m
 
 
+def fit_polynomial_known(image, left_fit, right_fit, margin=100):
+    nonzero = image.nonzero()
+    nonzeroy = np.array(nonzero[0])
+    nonzerox = np.array(nonzero[1])
+    left_lane_inds = ((nonzerox > (left_fit[0] * (nonzeroy ** 2) + left_fit[1] * nonzeroy + left_fit[2] - margin)) & (
+    nonzerox < (left_fit[0] * (nonzeroy ** 2) + left_fit[1] * nonzeroy + left_fit[2] + margin)))
+    right_lane_inds = ((nonzerox > (right_fit[0] * (nonzeroy ** 2) + right_fit[1] * nonzeroy + right_fit[2] - margin)) & (
+    nonzerox < (right_fit[0] * (nonzeroy ** 2) + right_fit[1] * nonzeroy + right_fit[2] + margin)))
+
+    # Again, extract left and right line pixel positions
+    leftx = nonzerox[left_lane_inds]
+    lefty = nonzeroy[left_lane_inds]
+    rightx = nonzerox[right_lane_inds]
+    righty = nonzeroy[right_lane_inds]
+
+    # Fit a second order polynomial to each
+    left_fit_px = np.polyfit(lefty, leftx, 2)
+    right_fit_px = np.polyfit(righty, rightx, 2)
+    left_fit_m = np.polyfit(lefty * curvature.ym_per_pix, leftx * curvature.xm_per_pix, 2)
+    right_fit_m = np.polyfit(righty * curvature.ym_per_pix, rightx * curvature.xm_per_pix, 2)
+
+    return left_fit_px, right_fit_px, left_fit_m, right_fit_m
+
+
 def find_window_centroids(image, window_width=50, window_height=80, margin=100):
     """
     
@@ -106,44 +130,14 @@ def find_window_centroids(image, window_width=50, window_height=80, margin=100):
     return window_centroids
 
 
-def window_mask(img_ref, center, level, width=50, height=80):
-    output = np.zeros_like(img_ref)
-    output[int(img_ref.shape[0]-(level+1)*height):int(img_ref.shape[0]-level*height),max(0,int(center-width/2)):min(int(center+width/2),img_ref.shape[1])] = 1
-    return output
-
-
-def draw_mask(image, centroids):
-    # If we found any window centers
-    if len(centroids) > 0:
-
-        # Points used to draw all the left and right windows
-        l_points = np.zeros_like(image)
-        r_points = np.zeros_like(image)
-
-        # Go through each level and draw the windows
-        for level in range(0, len(centroids)):
-            # Window_mask is a function to draw window areas
-            l_mask = window_mask(image, centroids[level][0], level)
-            r_mask = window_mask(image, centroids[level][1], level)
-            # Add graphic points from window mask here to total pixels found
-            l_points[(l_points == 255) | ((l_mask == 1))] = 255
-            r_points[(r_points == 255) | ((r_mask == 1))] = 255
-
-        # Draw the results
-        template = np.array(r_points + l_points, np.uint8)  # add both left and right window pixels together
-        zero_channel = np.zeros_like(template)  # create a zero color channel
-        template = np.array(cv2.merge((zero_channel, template, zero_channel)), np.uint8)  # make window pixels green
-        warpage = np.array(cv2.merge((image, image, image)), np.uint8)  # making the original road pixels 3 color channels
-        output = cv2.addWeighted(warpage, 1, template, 0.5, 0.0)  # overlay the orignal road image with window results
-
-    # If no window centers found, just display original road image
-    else:
-        output = np.array(cv2.merge((image, image, image)), np.uint8)
-
-    return output
-
-
 def draw_lane_lines(image, left_fit, right_fit):
+    """
+    
+    :param image: 
+    :param left_fit: 
+    :param right_fit: 
+    :return: 
+    """
     out_img = np.dstack((image, image, image)) * 255
     ploty = np.linspace(0, image.shape[0] - 1, image.shape[0])
     left_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
