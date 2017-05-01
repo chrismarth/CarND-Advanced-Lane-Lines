@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import curvature
 
 
 def fit_polynomial(image, window_width=50, window_height=80, margin=100, minpix=50):
@@ -51,11 +52,13 @@ def fit_polynomial(image, window_width=50, window_height=80, margin=100, minpix=
     rightx = nonzerox[right_lane_inds]
     righty = nonzeroy[right_lane_inds]
 
-    # Fit a second order polynomial to each
-    left_fit = np.polyfit(lefty, leftx, 2)
-    right_fit = np.polyfit(righty, rightx, 2)
+    # Fit a second order polynomial to each - We do this in both pixel and real-world space since we need both
+    left_fit_px = np.polyfit(lefty, leftx, 2)
+    right_fit_px = np.polyfit(righty, rightx, 2)
+    left_fit_m = np.polyfit(lefty*curvature.ym_per_pix, leftx*curvature.xm_per_pix, 2)
+    right_fit_m = np.polyfit(righty*curvature.ym_per_pix, rightx*curvature.xm_per_pix, 2)
 
-    return left_fit, right_fit
+    return left_fit_px, right_fit_px, left_fit_m, right_fit_m
 
 
 def find_window_centroids(image, window_width=50, window_height=80, margin=100):
@@ -149,7 +152,7 @@ def draw_lane_lines(image, left_fit, right_fit):
     pts_right = np.array([np.flipud(np.transpose(np.vstack([right_fitx, ploty])))])
     poly_pts = np.hstack((pts_left, pts_right))
     cv2.fillPoly(out_img, np.int_([poly_pts]), (0, 255, 0))
-    cv2.polylines(out_img, np.int_([pts_left]), 1, (255, 0, 0), thickness=40)
-    cv2.polylines(out_img, np.int_([pts_right]), 1, (0, 0, 255), thickness=40)
+    cv2.polylines(out_img, np.int_([pts_left]), 0, (255, 0, 0), thickness=40)
+    cv2.polylines(out_img, np.int_([pts_right]), 0, (0, 0, 255), thickness=40)
 
     return out_img

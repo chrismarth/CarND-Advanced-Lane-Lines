@@ -3,7 +3,7 @@ import glob
 import numpy as np
 
 
-def getCameraDistortion(img_dir, nx=9, ny=6):
+def get_camera_distortion(img_dir, nx=9, ny=6):
     """
     Given a directory containing chessboard calibration images with nx corners in the x-axis and ny corners in the
     y-axis, calculate the camera matrix and distortion coefficients. Note: all calibration images must be the same
@@ -41,5 +41,6 @@ def getCameraDistortion(img_dir, nx=9, ny=6):
 
 
 if __name__ == '__main__':
-    mtx = getCameraDistortion("camera_cal")
+    mtx, dist = get_camera_distortion("camera_cal")
     print(mtx)
+    print(dist)
