@@ -5,13 +5,16 @@ import curvature
 
 def fit_polynomial_blind(image, window_width=50, window_height=80, margin=100, minpix=50):
     """
+    Given a binary, birds-eye-view image of the lane find the polynomial fit for the left and right lane lines. Returns
+    the fits in both image pixels and linear distance (m)
+    
     TODO: Combine this with find_window_centroids
     
-    :param image: 
-    :param window_width: 
-    :param window_height: 
-    :param margin: 
-    :return: 
+    :param image: binary, birds-eye-view image of the lane 
+    :param window_width: width of the search window
+    :param window_height: height of the search window
+    :param margin: how far to look left or right in the window
+    :return: A tuple of 4 values (left_fit_px, right_fit_px, left_fit_m, right_fit_m)
     """
     # Create empty lists to receive left and right lane pixel indices
     left_lane_inds = []
@@ -87,12 +90,13 @@ def fit_polynomial_known(image, left_fit, right_fit, margin=100):
 
 def find_window_centroids(image, window_width=50, window_height=80, margin=100):
     """
-    
-    :param image: 
-    :param window_width: 
-    :param window_height: 
-    :param margin: 
-    :return: 
+    Given a binary, birds-eye-view image of the lane find the centroid of the search windows for left and right
+    lane lines
+    :param image: binary, birds-eye-view image of the lane 
+    :param window_width: width of the search window
+    :param window_height: height of the search window
+    :param margin: how far to look left or right in the window
+    :return: array of left and right window centroid x-value tuples
     """
     window_centroids = []
     window = np.ones(window_width)
@@ -132,10 +136,11 @@ def find_window_centroids(image, window_width=50, window_height=80, margin=100):
 
 def draw_lane_lines(image, left_fit, right_fit):
     """
-    
-    :param image: 
-    :param left_fit: 
-    :param right_fit: 
+    Given a birds-eye-view image and polynomial fit for left and right lane lines, overlay a left (red) and right (blue)
+    lane lines and do a polygon fill of the lane between the lines (green)
+    :param image: birds-eye-view of the lane 
+    :param left_fit: polynomial fit for the left lane line
+    :param right_fit: polynomial fit for the right lane line
     :return: 
     """
     out_img = np.dstack((image, image, image)) * 255

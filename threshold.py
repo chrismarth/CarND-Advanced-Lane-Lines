@@ -10,7 +10,7 @@ def hls_threshold_s_img(image, lower=90, upper=255):
     :param image: RGB image to threshold 
     :param lower: The lower bound of the S channel
     :param upper: The upper bound of the S channel
-    :return: 
+    :return: binary image with HLS, S threshold applied
     """
     hls = cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
     S = hls[:,:,2]
@@ -26,7 +26,7 @@ def hls_threshold_l_img(image, lower=90, upper=255):
     :param image: RGB image to threshold 
     :param lower: The lower bound of the L channel
     :param upper: The upper bound of the L channel
-    :return: 
+    :return: binary image with HLS, L threshold applied
     """
     hls = cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
     L = hls[:,:,1]
@@ -42,9 +42,8 @@ def sobel_threshold_x_img(img, lower=20, upper=100):
     :param image: RGB image to threshold 
     :param lower: The lower bound of the Sobel X gradient
     :param upper: The upper bound of the Sobel X gradient
-    :return: 
+    :return: binary image with Sobel gradient in x-direction applied
     """
-    # TODO: Explore other color spaces besides Gray here
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0)  # Take the derivative in x
     abs_sobelx = np.absolute(sobelx)  # Absolute x derivative to accentuate lines away from horizontal
@@ -63,9 +62,8 @@ def sobel_threshold_y_img(img, lower=20, upper=100):
     :param image: RGB image to threshold 
     :param lower: The lower bound of the Sobel X gradient
     :param upper: The upper bound of the Sobel X gradient
-    :return: 
+    :return: binary image with Sobel gradient in y-direction applied
     """
-    # TODO: Explore other color spaces besides Gray here
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1)  # Take the derivative in x
     abs_sobely = np.absolute(sobely)  # Absolute x derivative to accentuate lines away from horizontal
